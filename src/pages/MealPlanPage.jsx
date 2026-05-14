@@ -149,28 +149,29 @@ export default function MealPlanPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-[#F8F9FA] pb-32 font-sans text-stone-900">
-      <header className="sticky top-0 z-40 border-b border-stone-100 bg-white/80 px-4 py-4 backdrop-blur-xl md:px-6 md:py-5">
-        <div className="mx-auto flex w-full max-w-2xl items-center justify-between">
-          <div className="flex items-center gap-3 md:gap-4">
-            <button
-              onClick={() => navigate(-1)}
-              className="rounded-full p-2 transition-all active:scale-75 hover:bg-stone-100"
-            >
-              <ChevronLeft size={24} strokeWidth={2.5} />
-            </button>
-            <div>
-              <h1 className="text-xl font-black tracking-tight text-stone-800 md:text-2xl">Market to Meals</h1>
-              <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-orange-500 md:text-[11px] md:tracking-[0.2em]">
-                Shopping list & daily menu
-              </p>
-            </div>
+      {/* MOBILE-OPTIMIZED HEADER */}
+      <header className="sticky top-0 z-50 w-full border-b border-stone-100 bg-white/70 py-3 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-2xl items-center justify-between px-4">
+          <button
+            onClick={() => navigate(-1)}
+            className="flex h-10 w-10 items-center justify-center rounded-full text-stone-600 transition-colors active:bg-stone-100"
+          >
+            <ChevronLeft size={24} />
+          </button>
+
+          <div className="flex flex-col items-center text-center">
+            <h1 className="text-base font-black tracking-tight text-stone-800">Market to Meals</h1>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-orange-500">
+              Daily Planner
+            </p>
           </div>
+
           <button
             onClick={handleGenerateMeals}
             disabled={!profile || !marketFoods.length || isGeneratingMeals}
-            className="group relative overflow-hidden rounded-xl bg-stone-900 p-2.5 text-white shadow-lg shadow-stone-200 transition-all disabled:cursor-not-allowed disabled:opacity-40 active:scale-95 md:rounded-2xl md:p-3"
+            className="flex h-10 w-10 items-center justify-center rounded-full text-stone-800 transition-all active:scale-90 active:bg-stone-100 disabled:opacity-20"
           >
-            <Sparkles size={18} className="text-amber-400 md:size-[20px]" />
+            <Sparkles size={20} className={isGeneratingMeals ? "animate-pulse" : ""} />
           </button>
         </div>
       </header>

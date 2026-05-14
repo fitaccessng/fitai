@@ -1,15 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { 
   Play, CheckCircle, SkipForward, Timer, 
-  Flame, Award, Layout, History, ChevronRight,
-  ChevronDown, Activity
+  Flame, Award, Activity, ChevronLeft, ChevronRight
 } from "lucide-react";
 
-import PageHeader from "../components/PageHeader";
 import { getWorkout } from "../services/planService";
 import { useWellnessStore } from "../services/wellnessStore";
 
 export default function WorkoutPage() {
+  const navigate = useNavigate();
   const [backendPlan, setBackendPlan] = useState(null);
   const [queueIndex, setQueueIndex] = useState(0);
   const [timerMode, setTimerMode] = useState("idle");
@@ -17,7 +17,6 @@ export default function WorkoutPage() {
   const [totalSeconds, setTotalSeconds] = useState(0);
 
   const workoutQueue = useWellnessStore((state) => state.workoutQueue);
-  const workoutSessions = useWellnessStore((state) => state.workoutSessions);
   const prepareWorkout = useWellnessStore((state) => state.prepareWorkout);
   const completeWorkoutExercise = useWellnessStore((state) => state.completeWorkoutExercise);
   const skipWorkoutExercise = useWellnessStore((state) => state.skipWorkoutExercise);
@@ -129,49 +128,62 @@ export default function WorkoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] pb-40">
-      <div className="px-5 pt-4">
-        <PageHeader
-          compact
-          eyebrow="Training"
-          title="Daily Flow"
-          action={
-            <button onClick={onGenerate} className="p-3 rounded-2xl bg-ink text-cream active:scale-90 transition-transform">
-              <Flame size={20} fill={progress > 0 ? "currentColor" : "none"} />
-            </button>
-          }
-        />
-      </div>
+    <div className="flex min-h-screen flex-col bg-[#F8F9FA] pb-40 font-sans text-stone-900">
+      {/* IDENTICAL HEADER TO MEAL PLAN */}
+      <header className="sticky top-0 z-50 w-full border-b border-stone-100 bg-white/70 py-3 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-2xl items-center justify-between px-4">
+          <button
+            onClick={() => navigate(-1)}
+            className="flex h-10 w-10 items-center justify-center rounded-full text-stone-600 transition-colors active:bg-stone-100"
+          >
+            <ChevronLeft size={24} />
+          </button>
 
-      <main className="px-5 space-y-6 mt-6">
-        {/* --- COMPACT DASHBOARD --- */}
-        <section className="bg-white rounded-[2.5rem] p-6 shadow-sm border border-stone-100">
-          <div className="flex justify-between items-start">
+          <div className="flex flex-col items-center text-center">
+            <h1 className="text-base font-black tracking-tight text-stone-800">Training</h1>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-orange-500">
+              Daily Flow
+            </p>
+          </div>
+
+          <button
+            onClick={onGenerate}
+            className="flex h-10 w-10 items-center justify-center rounded-full text-stone-800 transition-all active:scale-90 active:bg-stone-100"
+          >
+            <Flame size={20} fill={progress > 0 ? "currentColor" : "none"} className={progress > 0 ? "text-orange-500" : ""} />
+          </button>
+        </div>
+      </header>
+
+      <main className="mx-auto w-full max-w-2xl space-y-6 px-4 pt-6">
+        {/* Dashboard Section */}
+        <section className="rounded-[2.5rem] border border-stone-100 bg-white p-6 shadow-sm">
+          <div className="flex items-start justify-between">
             <div>
-              <h2 className="text-2xl font-black text-stone-900 leading-tight">
+              <h2 className="text-xl font-black leading-tight text-stone-900">
                 {workoutQueue?.focusLabel || "No Active Plan"}
               </h2>
-              <div className="flex gap-2 mt-2">
-                <span className="px-3 py-1 rounded-full bg-stone-100 text-[10px] font-black uppercase tracking-widest text-stone-500">
+              <div className="mt-2 flex gap-2">
+                <span className="rounded-full bg-stone-100 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-stone-500">
                   {workoutQueue?.fitnessLevel || "Ready"}
                 </span>
-                <span className="px-3 py-1 rounded-full bg-orange-50 text-[10px] font-black uppercase tracking-widest text-orange-600">
+                <span className="rounded-full bg-orange-50 px-3 py-1 text-[9px] font-black uppercase tracking-widest text-orange-600">
                   Week {workoutQueue?.progressionWeek || 0}
                 </span>
               </div>
             </div>
-            <div className="h-12 w-12 rounded-2xl bg-stone-900 flex items-center justify-center text-cream">
-              <Activity size={24} />
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-stone-900 text-white">
+              <Activity size={20} />
             </div>
           </div>
 
           {workoutQueue && (
-            <div className="mt-8">
-              <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-stone-400 mb-2">
-                <span>Progress</span>
+            <div className="mt-6">
+              <div className="mb-2 flex justify-between text-[9px] font-black uppercase tracking-widest text-stone-400">
+                <span>Workout Progress</span>
                 <span>{Math.round(progress)}%</span>
               </div>
-              <div className="h-2 w-full bg-stone-100 rounded-full overflow-hidden">
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-stone-100">
                 <div 
                   className="h-full bg-stone-900 transition-all duration-1000" 
                   style={{ width: `${progress}%` }} 
@@ -182,73 +194,73 @@ export default function WorkoutPage() {
         </section>
 
         {currentExercise && !finishedAll ? (
-          <div className="space-y-6">
-            {/* --- ACTIVE EXERCISE CARD --- */}
-            <section className="bg-stone-900 rounded-[3rem] p-8 text-cream shadow-2xl relative overflow-hidden">
-               <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-3xl -mr-16 -mt-16" />
+          <div className="space-y-6 animate-slide-up">
+            {/* Active Exercise */}
+            <section className="relative overflow-hidden rounded-[2.5rem] bg-stone-900 p-6 text-white shadow-2xl">
+               <div className="absolute -right-16 -top-16 h-32 w-32 rounded-full bg-orange-500/10 blur-3xl" />
                
                <div className="relative z-10">
-                 <div className="flex justify-between items-center mb-6">
-                   <span className="px-3 py-1 rounded-lg bg-white/10 text-[10px] font-black uppercase tracking-widest text-gold border border-white/5">
+                 <div className="mb-5 flex items-center justify-between">
+                   <span className="rounded-lg border border-white/5 bg-white/10 px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-amber-400">
                      {currentStage?.label || "Active"}
                    </span>
                    <div className="flex items-center gap-2">
                      <Timer size={14} className="text-stone-500" />
-                     <span className="text-xl font-bold tabular-nums text-white">
+                     <span className="text-lg font-bold tabular-nums">
                        {formatSeconds(secondsLeft || totalSeconds)}
                      </span>
                    </div>
                  </div>
 
-                 <h3 className="text-4xl font-black tracking-tight leading-none mb-4 italic">
+                 <h3 className="mb-3 text-3xl font-black italic leading-tight tracking-tight">
                    {currentExercise.exercise_name}
                  </h3>
-                 <p className="text-cream/50 text-sm leading-relaxed mb-8">
+                 <p className="mb-6 text-xs leading-relaxed text-stone-400">
                    {currentExercise.example}
                  </p>
 
-                 <div className="grid grid-cols-2 gap-3">
-                   <div className="bg-white/5 rounded-2xl p-4 border border-white/5">
-                     <p className="text-[9px] font-black uppercase text-stone-500 tracking-widest mb-1">Target</p>
-                     <p className="text-xl font-bold italic">{currentExercise.sets} × {currentExercise.reps}</p>
+                 <div className="grid grid-cols-2 gap-2.5">
+                   <div className="rounded-xl border border-white/5 bg-white/5 p-3.5">
+                     <p className="mb-0.5 text-[8px] font-black uppercase tracking-widest text-stone-500">Target</p>
+                     <p className="text-lg font-bold italic">{currentExercise.sets} × {currentExercise.reps}</p>
                    </div>
-                   <div className="bg-white/5 rounded-2xl p-4 border border-white/5">
-                     <p className="text-[9px] font-black uppercase text-stone-500 tracking-widest mb-1">Duration</p>
-                     <p className="text-xl font-bold italic">{currentExercise.duration_seconds}s</p>
+                   <div className="rounded-xl border border-white/5 bg-white/5 p-3.5">
+                     <p className="mb-0.5 text-[8px] font-black uppercase tracking-widest text-stone-500">Duration</p>
+                     <p className="text-lg font-bold italic">{currentExercise.duration_seconds}s</p>
                    </div>
                  </div>
                </div>
             </section>
 
-            {/* --- UP NEXT (MINI CARD) --- */}
-            <div className="bg-white rounded-[2rem] p-5 flex items-center justify-between border border-stone-100 shadow-sm">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600">
-                  <SkipForward size={20} />
+            {/* Up Next */}
+            <div className="flex items-center justify-between rounded-2xl border border-stone-100 bg-white p-4 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-orange-600">
+                  <SkipForward size={18} />
                 </div>
                 <div>
-                  <p className="text-[9px] font-black uppercase tracking-widest text-stone-400">Up Next</p>
-                  <h4 className="font-bold text-stone-900">{nextExercise?.exercise_name || "Final Stretch"}</h4>
+                  <p className="text-[8px] font-black uppercase tracking-widest text-stone-400">Up Next</p>
+                  <h4 className="text-sm font-bold text-stone-900">{nextExercise?.exercise_name || "Final Stretch"}</h4>
                 </div>
               </div>
-              <ChevronRight size={20} className="text-stone-300" />
+              <ChevronRight size={18} className="text-stone-300" />
             </div>
 
-            {/* --- ROADMAP / STAGES --- */}
-            <section className="bg-stone-50 rounded-[2.5rem] p-6">
-              <h4 className="text-[10px] font-black uppercase tracking-widest text-stone-400 mb-6 px-2">Session Roadmap</h4>
+            {/* Roadmap */}
+            <section className="rounded-[2rem] bg-stone-50 p-5">
+              <h4 className="mb-5 px-1 text-[9px] font-black uppercase tracking-widest text-stone-400">Roadmap</h4>
               <div className="space-y-4">
                 {stageSummary.map((stage, idx) => (
-                  <div key={stage.key} className="flex items-center gap-4 px-2">
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold transition-colors ${stage.done === stage.total ? 'bg-emerald-500 text-white' : 'bg-white text-stone-400'}`}>
-                      {stage.done === stage.total ? <CheckCircle size={14} /> : idx + 1}
+                  <div key={stage.key} className="flex items-center gap-3 px-1">
+                    <div className={`flex h-7 w-7 items-center justify-center rounded-lg text-[10px] font-bold transition-colors ${stage.done === stage.total ? 'bg-emerald-500 text-white' : 'bg-white text-stone-400'}`}>
+                      {stage.done === stage.total ? <CheckCircle size={12} /> : idx + 1}
                     </div>
                     <div className="flex-1">
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="text-sm font-bold text-stone-800">{stage.label}</span>
-                        <span className="text-[10px] font-bold text-stone-400">{stage.done}/{stage.total}</span>
+                      <div className="mb-1 flex justify-between items-center">
+                        <span className="text-[11px] font-bold text-stone-800">{stage.label}</span>
+                        <span className="text-[9px] font-bold text-stone-400">{stage.done}/{stage.total}</span>
                       </div>
-                      <div className="h-1 w-full bg-stone-200 rounded-full overflow-hidden">
+                      <div className="h-1 w-full overflow-hidden rounded-full bg-stone-200">
                         <div 
                           className="h-full bg-stone-800 transition-all" 
                           style={{ width: `${(stage.done / stage.total) * 100}%` }} 
@@ -261,22 +273,21 @@ export default function WorkoutPage() {
             </section>
           </div>
         ) : (
-          /* --- EMPTY / START STATE --- */
-          <div className="py-12 text-center flex flex-col items-center">
-            <div className="w-24 h-24 bg-stone-100 rounded-full flex items-center justify-center mb-6">
-              {workoutQueue ? <Award size={40} className="text-orange-500" /> : <Play size={40} className="text-stone-300 ml-1" />}
+          <div className="flex flex-col items-center py-12 text-center">
+            <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-stone-100">
+              {workoutQueue ? <Award size={32} className="text-orange-500" /> : <Play size={32} className="ml-1 text-stone-300" />}
             </div>
-            <h3 className="text-2xl font-black text-stone-900">
+            <h3 className="text-xl font-black text-stone-900">
               {workoutQueue ? "Session Complete!" : "Start Training"}
             </h3>
-            <p className="text-stone-500 text-sm mt-2 max-w-[240px] mx-auto">
+            <p className="mx-auto mt-2 max-w-[200px] text-xs text-stone-500">
               {workoutQueue 
                 ? `You crushed ${completedCount} exercises today.` 
                 : "Initialize your adaptive flow to begin your workout."}
             </p>
             <button 
               onClick={workoutQueue ? saveSession : onGenerate} 
-              className="mt-8 px-10 py-4 bg-stone-900 text-cream rounded-full font-black uppercase tracking-widest text-xs shadow-xl active:scale-95 transition-transform"
+              className="mt-8 rounded-full bg-stone-900 px-8 py-3.5 text-[10px] font-black uppercase tracking-widest text-white shadow-xl transition-transform active:scale-95"
             >
               {workoutQueue ? "Log Session" : "Build Workout"}
             </button>
@@ -284,51 +295,56 @@ export default function WorkoutPage() {
         )}
       </main>
 
-      {/* --- STICKY MOBILE CONTROLS --- */}
+      {/* Sticky Controls */}
       {currentExercise && !finishedAll && (
-        <div className="fixed bottom-0 left-0 right-0 p-6 bg-white/80 backdrop-blur-xl border-t border-stone-100 z-50">
-          <div className="max-w-md mx-auto space-y-3">
+        <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-stone-100 bg-white/80 p-5 backdrop-blur-xl">
+          <div className="mx-auto max-w-md space-y-3">
             {timerMode === "idle" && (
               <button 
                 onClick={startExerciseTimer} 
-                className="w-full bg-stone-900 text-cream py-5 rounded-[2rem] font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2 shadow-2xl"
+                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-stone-900 py-4 font-black uppercase tracking-widest text-[10px] text-white shadow-2xl transition-all active:scale-95"
               >
-                <Play size={16} fill="currentColor" /> Start Set
+                <Play size={14} fill="currentColor" /> Start Set
               </button>
             )}
             {timerMode === "exercise" && (
               <button 
                 onClick={completeCurrent} 
-                className="w-full bg-emerald-500 text-white py-5 rounded-[2rem] font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2 shadow-lg"
+                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-500 py-4 font-black uppercase tracking-widest text-[10px] text-white shadow-lg transition-all active:scale-95"
               >
-                <CheckCircle size={16} /> Mark Done
+                <CheckCircle size={14} /> Mark Done
               </button>
             )}
             {timerMode === "restPrompt" && (
-              <div className="flex gap-3">
+              <div className="flex gap-2">
                 <button 
                   onClick={startRestTimer} 
-                  className="flex-1 bg-stone-900 text-cream py-5 rounded-[2rem] font-black uppercase tracking-widest text-xs"
+                  className="flex-1 rounded-2xl bg-stone-900 py-4 font-black uppercase tracking-widest text-[10px] text-white transition-all active:scale-95"
                 >
                   Rest
                 </button>
                 <button 
                   onClick={goNextWithoutRest} 
-                  className="flex-1 bg-stone-100 text-stone-900 py-5 rounded-[2rem] font-black uppercase tracking-widest text-xs"
+                  className="flex-1 rounded-2xl bg-stone-100 py-4 font-black uppercase tracking-widest text-[10px] text-stone-900 transition-all active:scale-95"
                 >
-                  Next
+                  Skip Rest
                 </button>
               </div>
             )}
             <button 
               onClick={skipCurrent} 
-              className="w-full py-2 text-stone-400 font-bold uppercase tracking-widest text-[9px]"
+              className="w-full py-2 text-[8px] font-bold uppercase tracking-widest text-stone-400"
             >
               Skip this exercise
             </button>
           </div>
         </div>
       )}
+
+      <style>{`
+        @keyframes slideUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .animate-slide-up { animation: slideUp 0.3s ease-out forwards; }
+      `}</style>
     </div>
   );
 }
