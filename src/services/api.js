@@ -1,0 +1,22 @@
+import axios from "axios";
+
+const TOKEN_KEY = "pulsepilot_token";
+const initialToken = typeof window !== "undefined" ? window.localStorage.getItem(TOKEN_KEY) : null;
+
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1",
+  headers: initialToken ? { Authorization: `Bearer ${initialToken}` } : undefined,
+});
+
+api.interceptors.request.use((config) => {
+  const token = typeof window !== "undefined" ? window.localStorage.getItem(TOKEN_KEY) : null;
+
+  if (token) {
+    config.headers = config.headers ?? {};
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
+});
+
+export default api;
