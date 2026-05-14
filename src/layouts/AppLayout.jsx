@@ -65,9 +65,9 @@ export default function AppLayout() {
   }, [notificationPreferences?.emailEnabled, notificationPreferences?.pushEnabled]);
 
   return (
-    <div className="flex h-screen flex-col bg-[#F9F9F9] font-sans selection:bg-black/5">
+    <div className="flex min-h-screen flex-col bg-[#F9F9F9] font-sans selection:bg-black/5">
       {!hideShellHeader ? (
-        <header className="sticky top-0 z-30 flex items-center justify-between bg-white/80 px-6 py-4 backdrop-blur-xl">
+        <header className="z-30 flex items-center justify-between bg-white/80 px-6 py-4 backdrop-blur-xl">
           <div className="flex flex-col">
             <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-ember">FitAi</span>
             <h2 className="text-sm font-semibold text-ink">
@@ -84,8 +84,8 @@ export default function AppLayout() {
         </header>
       ) : null}
 
-      <main className={`flex-1 overflow-y-auto ${isOnboardingRoute ? "" : "pb-24"}`}> 
-        <div className={isOnboardingRoute ? "" : "mx-auto max-w-md px-5 py-6"}>
+      <main className={`flex-1 overflow-y-auto ${isOnboardingRoute ? "" : "pb-20"}`}> 
+        <div className={isOnboardingRoute ? "" : "mx-auto max-w-md px-5 py-4"}>
           <Outlet />
         </div>
       </main>

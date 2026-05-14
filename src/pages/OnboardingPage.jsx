@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { generateMealPlan, generateWorkout } from "../services/planService";
@@ -91,8 +91,15 @@ export default function OnboardingPage() {
   const [error, setError] = useState("");
   const [direction, setDirection] = useState("forward");
   const [isAnimating, setIsAnimating] = useState(false);
+  const scrollContainerRef = useRef(null);
 
   const currentStepData = stepInfo[currentStep];
+
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = 0;
+    }
+  }, [currentStep]);
 
   const handleNext = () => {
     if (currentStep < TOTAL_STEPS - 1 && !isAnimating) {
@@ -284,7 +291,7 @@ export default function OnboardingPage() {
           </div>
 
           {/* Sheet Content */}
-          <div className="px-6 pb-8 max-h-[55vh] overflow-y-auto">
+          <div ref={scrollContainerRef} className="px-6 pb-8 max-h-[55vh] overflow-y-auto">
             {/* Animated step content */}
             <div
               key={currentStep}

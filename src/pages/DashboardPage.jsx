@@ -40,9 +40,9 @@ const dailyTips = [
  */
 const getCurrentWindow = () => {
   const hour = new Date().getHours();
-  if (hour < 11) return { key: "breakfast", label: "Morning Fuel" };
-  if (hour < 16) return { key: "lunch", label: "Mid-day Power" };
-  return { key: "dinner", label: "Evening Recovery" };
+  if (hour < 11) return { key: "morning", label: "Morning Fuel" };
+  if (hour < 16) return { key: "afternoon", label: "Mid-day Power" };
+  return { key: "evening", label: "Evening Recovery" };
 };
 
 const getDailyCompletion = (mealPct, waterPct, workoutDone) => {
@@ -50,17 +50,15 @@ const getDailyCompletion = (mealPct, waterPct, workoutDone) => {
   return Math.round((mealPct + waterPct + workoutScore) / 3);
 };
 
-const countCompletedTodayMeals = (mealCompletion) => {
+const countCompletedTodayMeals = (mealCompletion, todayKey) => {
   if (!mealCompletion) return 0;
-  return Object.values(mealCompletion).filter(v => v === true).length;
+  return Object.values(mealCompletion[todayKey] || {}).filter((value) => value === true).length;
 };
 
 const buildRecoveryScore = (sleep, consistency) => {
   const sleepScore = Math.min((sleep / 8) * 100, 100);
   return Math.round((sleepScore + consistency) / 2) || 0;
 };
-
-const getDayEmoji = (index) => ["⚡", "🥗", "💧", "🔥", "🧘", "🏆", "😴"][index] || "✨";
 
 const getUnreadNotifications = (analytics, wellness) => {
   const messages = [];
@@ -156,10 +154,48 @@ export default function DashboardPage() {
   }, [mealCards]);
 
   const mealCompletionPercent = mealCards.length > 0 
-    ? Math.round((countCompletedTodayMeals(wellness.meal_completion) / mealCards.length) * 100) : 0;
+    ? Math.round((countCompletedTodayMeals(wellness.meal_completion, todayKey) / mealCards.length) * 100) : 0;
   const waterCompletionPercent = Math.round(((wellness.water_intake || 0) / 8) * 100);
   const workoutCompleted = todayLogs.some(log => log.log_type === "workout");
   const overallScore = getDailyCompletion(mealCompletionPercent, waterCompletionPercent, workoutCompleted);
+  const todayMealCompletion = wellness.meal_completion?.[todayKey] || {};
+  const dailyTasks = useMemo(() => ([
+    {
+      label: "Breakfast",
+      emoji: "☕",
+      status: todayMealCompletion.morning ? "Done" : "To do",
+      detail: mealCards.find((meal) => meal.key === "morning")?.title || "Generate breakfast",
+      completed: Boolean(todayMealCompletion.morning),
+    },
+    {
+      label: "Lunch",
+      emoji: "🍲",
+      status: todayMealCompletion.afternoon ? "Done" : "To do",
+      detail: mealCards.find((meal) => meal.key === "afternoon")?.title || "Generate lunch",
+      completed: Boolean(todayMealCompletion.afternoon),
+    },
+    {
+      label: "Dinner",
+      emoji: "🥣",
+      status: todayMealCompletion.evening ? "Done" : "To do",
+      detail: mealCards.find((meal) => meal.key === "evening")?.title || "Generate dinner",
+      completed: Boolean(todayMealCompletion.evening),
+    },
+    {
+      label: "Workout",
+      emoji: "💪",
+      status: workoutCompleted ? "Done" : "To do",
+      detail: currentWorkout?.focusLabel || "Move your body today",
+      completed: workoutCompleted,
+    },
+    {
+      label: "Water",
+      emoji: "💧",
+      status: (wellness.water_intake || 0) >= 8 ? "Done" : "To do",
+      detail: `${wellness.water_intake || 0}/8 glasses`,
+      completed: (wellness.water_intake || 0) >= 8,
+    },
+  ]), [currentWorkout?.focusLabel, mealCards, todayMealCompletion, wellness.water_intake, workoutCompleted]);
 
   const statDetails = useMemo(() => ({
     consistency: { title: "Consistency Details", items: [
@@ -205,16 +241,16 @@ export default function DashboardPage() {
   const unreadNotifications = getUnreadNotifications(analytics, wellness);
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#FDFCFB] text-[#1A1513] font-sans pb-32">
+    <div className="flex min-h-screen flex-col bg-[#FDFCFB] text-[#1A1513] font-sans pb-24">
       
       {/* MAIN CONTENT */}
-      <main className="px-5 pt-4 flex-1 space-y-6">
+      <main className="px-5 pt-2 flex-1 space-y-4">
         
         {/* HERO PROGRESS */}
-        <section className="relative bg-[#1A1513] rounded-[3rem] p-8 text-white overflow-hidden shadow-xl shadow-stone-200">
+        <section className="relative overflow-hidden rounded-[3rem] bg-[#1A1513] p-7 text-white shadow-xl shadow-stone-200">
           <div className="relative z-10 flex flex-col items-center">
             <ProgressRing percentage={overallScore} />
-            <div className="mt-8 bg-white/10 backdrop-blur-md rounded-2xl p-4 w-full grid grid-cols-3 gap-2 text-center border border-white/5">
+            <div className="mt-6 grid w-full grid-cols-3 gap-2 rounded-2xl border border-white/5 bg-white/10 p-4 text-center backdrop-blur-md">
               <div><p className="text-[9px] text-stone-400 font-bold uppercase tracking-tighter">Workout</p><p className="font-bold text-sm">{workoutCompleted ? "Done" : "Off"}</p></div>
               <div><p className="text-[9px] text-stone-400 font-bold uppercase tracking-tighter">Water</p><p className="font-bold text-sm">{wellness.water_intake}/8</p></div>
               <div><p className="text-[9px] text-stone-400 font-bold uppercase tracking-tighter">Meals</p><p className="font-bold text-sm">{mealCompletionPercent}%</p></div>
@@ -224,12 +260,12 @@ export default function DashboardPage() {
         </section>
 
         {/* QUICK ACTIONS SECTION */}
-        <section className="space-y-3">
+        <section className="space-y-2">
           <div className="flex items-center justify-between px-1">
             <h3 className="font-bold text-lg">Quick Actions</h3>
             <span className="text-[10px] font-bold text-stone-400 uppercase tracking-widest">Single Tap Log</span>
           </div>
-          <div className="grid grid-cols-4 gap-3 bg-white border border-stone-100 p-5 rounded-[2.5rem] shadow-sm">
+          <div className="grid grid-cols-4 gap-3 rounded-[2.5rem] border border-stone-100 bg-white p-4 shadow-sm">
             {quickActionItems.map((action) => (
               action.link ? (
                 <Link key={action.label} to={action.link} className="flex flex-col items-center gap-2 group">
@@ -251,7 +287,7 @@ export default function DashboardPage() {
         </section>
 
         {/* HORIZONTAL STATS */}
-        <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+        <div className="scrollbar-hide flex gap-3 overflow-x-auto pb-1">
           <MiniBentoStat onClick={() => setActiveBottomSheet("consistency")} icon="📊" label="Consistency" value={`${analytics.consistencyScore}%`} color="bg-blue-50 text-blue-600" />
           <MiniBentoStat onClick={() => setActiveBottomSheet("goalPace")} icon="🎯" label="Goal Pace" value={`${analytics.goalPrediction}w`} color="bg-emerald-50 text-emerald-600" />
           <MiniBentoStat onClick={() => setActiveBottomSheet("streak")} icon="🔥" label="Streak" value={`${wellness.streak_days}d`} color="bg-orange-50 text-orange-600" />
@@ -295,13 +331,26 @@ export default function DashboardPage() {
         </BentoCard>
 
         {/* WEEKLY CALENDAR */}
-        <section className="space-y-4 pb-12">
-          <h3 className="font-bold text-lg px-1">Weekly Pulse</h3>
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-            {weekDays.map((day, index) => (
-              <div key={day} className={`flex-shrink-0 w-16 p-4 rounded-3xl flex flex-col items-center border transition-all ${index === currentDayIndex ? "bg-stone-900 border-stone-900 text-white shadow-lg scale-105" : "bg-white border-stone-100 text-stone-400"}`}>
-                <span className="text-[9px] font-black uppercase mb-3">{day}</span>
-                <span className="text-2xl">{getDayEmoji(index)}</span>
+        <section className="space-y-3 pb-4">
+          <h3 className="px-1 text-lg font-bold">Daily Pulse</h3>
+          <div className="scrollbar-hide flex gap-2 overflow-x-auto pb-1">
+            {dailyTasks.map((task) => (
+              <div
+                key={task.label}
+                className={`flex w-24 flex-shrink-0 flex-col items-center rounded-3xl border p-4 text-center transition-all ${
+                  task.completed
+                    ? "scale-105 border-stone-900 bg-stone-900 text-white shadow-lg"
+                    : "border-stone-100 bg-white text-stone-400"
+                }`}
+              >
+                <span className="mb-2 text-[9px] font-black uppercase">{task.label}</span>
+                <span className="text-2xl">{task.emoji}</span>
+                <span className={`mt-3 text-[9px] font-black uppercase tracking-wide ${task.completed ? "text-white/70" : "text-stone-400"}`}>
+                  {task.status}
+                </span>
+                <span className={`mt-1 text-[10px] font-bold leading-tight ${task.completed ? "text-white/80" : "text-stone-500"}`}>
+                  {task.detail}
+                </span>
               </div>
             ))}
           </div>
