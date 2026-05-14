@@ -150,8 +150,8 @@ export default function MealPlanPage() {
   return (
     <div className="flex min-h-screen flex-col bg-[#F8F9FA] pb-32 font-sans text-stone-900">
       {/* MOBILE-OPTIMIZED HEADER */}
-      <header className="sticky top-0 z-50 w-full border-b border-stone-100 bg-white/70 py-3 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-2xl items-center justify-between px-4">
+      <header className="sticky top-0 z-50 w-full border-b border-stone-100 bg-white py-3">
+        <div className="mx-auto flex w-full items-center justify-between px-4">
           <button
             onClick={() => navigate(-1)}
             className="flex h-10 w-10 items-center justify-center rounded-full text-stone-600 transition-colors active:bg-stone-100"
