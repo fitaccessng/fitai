@@ -69,7 +69,7 @@ export default function AppLayout() {
       {!hideShellHeader ? (
         <header className="sticky top-0 z-30 flex items-center justify-between bg-white/80 px-6 py-4 backdrop-blur-xl">
           <div className="flex flex-col">
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-ember">PulsePilot</span>
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-ember">FitAi</span>
             <h2 className="text-sm font-semibold text-ink">
               Hello, {user?.full_name?.split(" ")[0] || "there"}
             </h2>

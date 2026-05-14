@@ -192,9 +192,9 @@ export default function SignInPage() {
         <div className="overflow-hidden rounded-[2.5rem] border border-stone-800/60 bg-stone-900/40 p-8 shadow-2xl backdrop-blur-2xl">
           <div className="mb-8 flex flex-col items-center">
             <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-orange-600 shadow-xl shadow-orange-500/20">
-              <span className="text-2xl font-black text-stone-950">P</span>
+              <span className="text-2xl font-black text-stone-950">F</span>
             </div>
-            <h1 className="text-2xl font-bold text-white">PulsePilot</h1>
+            <h1 className="text-2xl font-bold text-white">FitAi</h1>
             <p className="text-sm text-stone-500">Your Health, Optimized.</p>
           </div>
 
