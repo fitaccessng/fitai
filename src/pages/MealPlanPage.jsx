@@ -64,6 +64,7 @@ export default function MealPlanPage() {
   const todayKey = new Date().toISOString().slice(0, 10);
   const meals = generatedMeals?.meals || [];
   const marketFoods = availableFoods.market || [];
+  const hasMarketList = marketFoods.length > 0;
 
   const totalMacro = useMemo(
     () =>
@@ -245,47 +246,47 @@ export default function MealPlanPage() {
               </div>
             </div>
             <button
-              onClick={handleGenerateMarket}
+              onClick={hasMarketList ? () => setShowFoodSelector(true) : handleGenerateMarket}
               disabled={!profile || isGeneratingMarket}
               className="w-full rounded-xl bg-stone-900 py-3 text-[10px] font-black uppercase tracking-[0.2em] text-white disabled:opacity-40 sm:w-auto sm:px-4"
             >
-              {isGeneratingMarket ? "Building..." : "Build List"}
+              {isGeneratingMarket ? "Building..." : hasMarketList ? "Go To Market" : "Build List"}
             </button>
           </div>
 
-          <div className="mb-4 flex flex-wrap gap-2">
-            <input
-              value={customMarketFood}
-              onChange={(event) => setCustomMarketFood(event.target.value)}
-              onKeyDown={(event) => event.key === "Enter" && handleAddCustomMarketFood()}
-              placeholder="Add item..."
-              className="min-w-0 flex-1 rounded-xl border border-orange-100 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-orange-200"
-            />
-            <div className="flex gap-2">
-                <button onClick={handleAddCustomMarketFood} className="flex h-11 w-11 items-center justify-center rounded-xl bg-orange-500 text-white active:scale-95">
-                  <Plus size={18} />
-                </button>
-                <button onClick={() => setShowFoodSelector(true)} className="flex h-11 w-11 items-center justify-center rounded-xl bg-white text-orange-600 shadow-sm active:scale-95">
-                  <PencilLine size={18} />
-                </button>
-            </div>
-          </div>
+          {hasMarketList ? (
+            <button
+              onClick={() => setShowFoodSelector(true)}
+              className="flex w-full items-center justify-center gap-2 rounded-2xl border border-orange-100 bg-white px-4 py-4 text-sm font-black uppercase tracking-[0.18em] text-orange-600 shadow-sm active:scale-[0.99]"
+            >
+              <ShoppingBasket size={16} />
+              Go To Market
+            </button>
+          ) : (
+            <>
+              <div className="mb-4 flex flex-wrap gap-2">
+                <input
+                  value={customMarketFood}
+                  onChange={(event) => setCustomMarketFood(event.target.value)}
+                  onKeyDown={(event) => event.key === "Enter" && handleAddCustomMarketFood()}
+                  placeholder="Add item..."
+                  className="min-w-0 flex-1 rounded-xl border border-orange-100 bg-white px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-orange-200"
+                />
+                <div className="flex gap-2">
+                  <button onClick={handleAddCustomMarketFood} className="flex h-11 w-11 items-center justify-center rounded-xl bg-orange-500 text-white active:scale-95">
+                    <Plus size={18} />
+                  </button>
+                  <button onClick={() => setShowFoodSelector(true)} className="flex h-11 w-11 items-center justify-center rounded-xl bg-white text-orange-600 shadow-sm active:scale-95">
+                    <PencilLine size={18} />
+                  </button>
+                </div>
+              </div>
 
-          <div className="flex flex-wrap gap-1.5">
-            {marketFoods.length ? (
-              marketFoods.map((food) => (
-                <button
-                  key={food}
-                  onClick={() => removeMarketFood(food)}
-                  className="flex items-center gap-1.5 rounded-lg border border-orange-100/80 bg-white px-2.5 py-1.5 text-[10px] font-bold text-stone-600 shadow-sm"
-                >
-                  {food} <X size={10} />
-                </button>
-              ))
-            ) : (
-              <p className="text-xs italic text-stone-400">List is empty.</p>
-            )}
-          </div>
+              <div className="flex flex-wrap gap-1.5">
+                <p className="text-xs italic text-stone-400">List is empty.</p>
+              </div>
+            </>
+          )}
         </section>
 
         {/* Menu Section */}
