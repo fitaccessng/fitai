@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { loginUser, registerUser, requestPasswordReset, resetPassword } from "../services/authService";
+import { API_BASE_URL } from "../services/api";
 
 const initialState = { full_name: "", email: "", password: "" };
 const initialResetState = { email: "", token: "", password: "", confirmPassword: "" };
@@ -116,7 +117,7 @@ export default function SignInPage() {
   }, [searchParams]);
 
   const readErrorMessage = (err, fallback) => {
-    if (err.code === "ERR_NETWORK") return "Backend unreachable at http://localhost:8000.";
+    if (err.code === "ERR_NETWORK") return `Backend unreachable at ${API_BASE_URL}.`;
     return err.response?.data?.detail || fallback;
   };
 

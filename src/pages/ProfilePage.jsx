@@ -36,6 +36,7 @@ import { useAuth } from "../context/AuthContext";
 import { getProfile, updateProfile } from "../services/profileService";
 import { pollAndDisplayNotifications, requestBrowserNotificationPermission } from "../services/browserNotificationService";
 import { sendTestNotification } from "../services/notificationService";
+import { API_BASE_URL } from "../services/api";
 import { useWellnessStore } from "../services/wellnessStore";
 
 const initialDraft = {
@@ -1039,7 +1040,7 @@ function createDraftFromProfile(data) {
 
 function readErrorMessage(err, fallback) {
   if (err?.code === "ERR_NETWORK") {
-    return "Backend unreachable at http://localhost:8000.";
+    return `Backend unreachable at ${API_BASE_URL}.`;
   }
 
   return err?.response?.data?.detail || fallback;
